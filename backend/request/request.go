@@ -20,7 +20,7 @@ func Request (cointype string, address string) func (chan Res) () {
 			Post("https://testnet1.everitoken.io/v1/history/get_fungible_actions").
 			Set("Accept","application/json").
 			Send(`{"sym_id":1,"addr":"` + address + `"}`).
-			EndStruct(&txs)
+			EndBytes()
 			if len(errs) > 0 {
 				err := fmt.Errorf("Request errors: %+v",errs)
 				ch <- Res{Txs:txs,Err:err}
@@ -37,7 +37,7 @@ func Request (cointype string, address string) func (chan Res) () {
 			_, b, errs := gorequest.New().
 			Get("http://5.189.139.168:4000/"+"address/"+address+"/txs").
 			Set("Accept","application/json").
-			EndStruct(&txs)
+			EndBytes()
 			if len(errs) > 0 {
 				err := fmt.Errorf("Request errors: %+v",errs)
 				ch <- Res{Txs:txs,Err:err}

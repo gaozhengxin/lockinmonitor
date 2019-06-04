@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime/debug"
 	"github.com/gaozhengxin/lockinmonitor/backend/request"
+	"github.com/gaozhengxin/lockinmonitor/backend/types"
 )
 
 type Backend struct {}
@@ -25,5 +26,25 @@ func (b *Backend) GetTransactionsByAddress (cointype string, address string) (re
 	}
 	go f(ch)
 	res, _ = <-ch
+	if res.Txs != nil {
+		res.Txs = LockinFilt(res.Txs)
+	}
+	return
+}
+
+// 判断是否可以lockin
+func LockinFilt(txs []types.Transaction) (litxs []types.Transaction) {
+	for _, tx := range txs {
+		canlockin := true
+		for _, out := range tx.TxOutputs {
+			if out.ToAddress == tx.FromAddress {
+				canlockin = false
+				break
+			}
+		}
+		if canlockin {
+			litxs = append(litxs, tx)
+		}
+	}
 	return
 }

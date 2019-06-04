@@ -2,7 +2,8 @@ package types
 
 import (
 	"strconv"
-	"time"
+	"strings"
+//	"time"
 	"github.com/gaozhengxin/lockinmonitor/backend/utils"
 )
 
@@ -38,14 +39,16 @@ func BtcTxToTransaction(btxs []BtcTx) []Transaction {
 		for _, vin := range tx.Vin {
 			froms[vin.Prevout.Scriptpubkey_address]=1
 		}
-		txs[i].FromAddress = ""
+		fromStr := ""
 		for k, _ := range froms {
-			txs[i].FromAddress += k + "|"
+			fromStr += k + "|"
 		}
+		txs[i].FromAddress = strings.TrimSuffix(fromStr,"|")
 		for _, vout := range tx.Vout {
 			txs[i].TxOutputs = append(txs[i].TxOutputs,TxOutput{ToAddress:vout.Scriptpubkey_address,Value:strconv.FormatInt(int64(vout.Value),10)})
 		}
-		txs[i].Timestamp = time.Unix(0,int64(tx.Status.Block_time)).Format("2019-05-29T11:11:36+00")
+		txs[i].Timestamp = int64(tx.Status.Block_time) * 1000
+		//txs[i].Timestamp = time.Unix(0,int64(tx.Status.Block_time)).Format("2019-05-29T11:11:36+00")
 	}
 	return txs
 }

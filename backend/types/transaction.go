@@ -6,7 +6,8 @@ type Transaction struct {
 	Txhash string
 	FromAddress string
 	TxOutputs []TxOutput
-	Timestamp string
+	Timestamp int64
+	//Timestamp string
 }
 
 type TxOutput struct {

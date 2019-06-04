@@ -1,7 +1,9 @@
 package types
 
 import (
+	"log"
 	"strings"
+	"time"
 	"encoding/json"
 )
 
@@ -32,7 +34,12 @@ func EvtActionToTransaction (e []EvtAction) ([]Transaction) {
 	txs := make([]Transaction, len(e))
 	for i, act := range e {
 		txs[i].Txhash = act.Trx_id
-		txs[i].Timestamp = act.Timestamp
+		timestamp, err := time.Parse("2006-01-02T15:04:05+00",act.Timestamp)
+		if err == nil {
+			txs[i].Timestamp = timestamp.Unix() * 1000
+		} else {
+			log.Printf("get Evt transaction time stamp error: %v\n",err)
+		}
 		if act.Name == "issuefungible" {
 			txs[i].FromAddress = "the token issuer"
 			txs[i].TxOutputs = append(txs[i].TxOutputs,TxOutput{ToAddress:act.Data.(*IssuefungibleData).Address,Value:act.Data.(*IssuefungibleData).Number.ToString()})
@@ -65,14 +72,6 @@ type TransfertfData struct {
 	From string
 	To string
 	Number EvtAmount
-}
-
-func (evtact *EvtAction) MarshalJSON () string {
-	return ""
-}
-
-func (evtact *EvtAction) UnmarshalJSON (jsonstr string) error {
-	return nil
 }
 
 type EvtAmount string
