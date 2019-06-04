@@ -20,6 +20,16 @@ func ParseTransactions (cointype string) func ([]byte) []Transaction {
 			return EvtActionToTransaction(UnmarshalEvtActions(b))
 		}
 	}
+	if cointype == "BTC" {
+		return func (b []byte) []Transaction {
+			var btctxs []BtcTx
+			json.Unmarshal(b,&btctxs)
+			if btctxs == nil {
+				return nil
+			}
+			return BtcTxToTransaction(btctxs)
+		}
+	}
 	return nil
 }
 
