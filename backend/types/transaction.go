@@ -16,7 +16,7 @@ type TxOutput struct {
 }
 
 func ParseTransactions (cointype string) func ([]byte) []Transaction {
-	if cointype == "EVT-1" {
+	if cointype == "EVT1" {
 		return func (b []byte) []Transaction {
 			return EvtActionToTransaction(UnmarshalEvtActions(b))
 		}
@@ -29,6 +29,16 @@ func ParseTransactions (cointype string) func ([]byte) []Transaction {
 				return nil
 			}
 			return BtcTxToTransaction(btctxs)
+		}
+	}
+	if cointype == "ETH" {
+		return func (b []byte) []Transaction {
+			var ethtxs []ETHTransaction
+			json.Unmarshal(b,&ethtxs)
+			if ethtxs == nil {
+				return nil
+			}
+			return ETHTransactionToTransaction(ethtxs)
 		}
 	}
 	return nil

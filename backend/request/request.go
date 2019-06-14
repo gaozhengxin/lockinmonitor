@@ -2,7 +2,9 @@ package request
 
 import (
 	"fmt"
+	"os"
 	"time"
+	"github.com/BurntSushi/toml"
 	"github.com/gaozhengxin/lockinmonitor/backend/types"
 	"github.com/parnurzeal/gorequest"
 )
@@ -13,11 +15,11 @@ type Res struct {
 }
 
 func Request (cointype string, address string) func (chan Res) () {
-	if cointype == "EVT-1" {
+	if cointype == "EVT1" {
 		return func (ch chan Res) {
 			var txs []types.Transaction
 			_, b, errs := gorequest.New().
-			Post("https://testnet1.everitoken.io/v1/history/get_fungible_actions").
+			Post(TheApiConfigs.EVT).
 			Set("Accept","application/json").
 			Send(`{"sym_id":1,"addr":"` + address + `"}`).
 			EndBytes()
@@ -35,7 +37,24 @@ func Request (cointype string, address string) func (chan Res) () {
 		return func (ch chan Res) {
 			var txs []types.Transaction
 			_, b, errs := gorequest.New().
-			Get("http://5.189.139.168:4000/"+"address/"+address+"/txs").
+			Get(TheApiConfigs.BTC + "/"+"address/"+address+"/txs").
+			Set("Accept","application/json").
+			EndBytes()
+			if len(errs) > 0 {
+				err := fmt.Errorf("Request errors: %+v",errs)
+				ch <- Res{Txs:txs,Err:err}
+			}
+			txs = types.ParseTransactions(cointype)(b)
+			ch <- Res{Txs:txs}
+			time.Sleep(time.Duration(5) * time.Second)
+			close(ch)
+		}
+	}
+	if cointype == "ETH" {
+		return func (ch chan Res) {
+			var txs []types.Transaction
+			_, b, errs := gorequest.New().
+			Get(TheApiConfigs.ETH + "/"+"txs/"+address).
 			Set("Accept","application/json").
 			EndBytes()
 			if len(errs) > 0 {
@@ -51,4 +70,40 @@ func Request (cointype string, address string) func (chan Res) () {
 	return func (ch chan Res) {
 		ch <- Res{Err: fmt.Errorf("cointype %v not supported",cointype)}
 	}
+}
+
+var TheApiConfigs *ApiConfigs
+
+type ApiConfigs struct {
+	BTC string
+	ETH string
+	EVT string
+}
+
+func LoadConfig (configfile string) error {
+	if TheApiConfigs == nil {
+		TheApiConfigs = new(ApiConfigs)
+	}
+
+	if exists, _ := PathExists(configfile); exists {
+		fmt.Printf("use config file: %s\n", configfile)
+		_, err := toml.DecodeFile(configfile, TheApiConfigs)
+		return err
+	} else {
+		_, err := toml.Decode(defaultConfig, TheApiConfigs)
+		return err
+	}
+
+	return nil
+}
+
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }

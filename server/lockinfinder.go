@@ -4,13 +4,17 @@ import (
 	"flag"
 	"github.com/gin-gonic/gin"
 	"github.com/gaozhengxin/lockinmonitor/backend"
+	"github.com/gaozhengxin/lockinmonitor/backend/request"
 	"github.com/gaozhengxin/lockinmonitor/backend/types"
 )
 
 func main() {
-	p := flag.String("port","8080","port")
+	p := flag.String("port","5000","port")
+	conf := flag.String("conf","","")
 	flag.Parse()
 	port := ":" + *p
+
+	request.LoadConfig(*conf)
 
 	b := backend.New()
 	router := gin.Default()
