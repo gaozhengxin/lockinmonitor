@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gaozhengxin/lockinmonitor/backend"
 	"github.com/gaozhengxin/lockinmonitor/backend/request"
@@ -14,7 +15,11 @@ func main() {
 	flag.Parse()
 	port := ":" + *p
 
-	request.LoadConfig(*conf)
+	err0 := request.LoadConfig(*conf)
+	if err0 != nil {
+		panic(err0)
+	}
+	fmt.Printf("!!!! TheApiConfigs is %+v\n", request.TheApiConfigs)
 
 	b := backend.New()
 	router := gin.Default()

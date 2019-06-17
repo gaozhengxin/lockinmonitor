@@ -90,6 +90,7 @@ func LoadConfig (configfile string) error {
 		_, err := toml.DecodeFile(configfile, TheApiConfigs)
 		return err
 	} else {
+		fmt.Printf("use default config: %s\n", defaultConfig)
 		_, err := toml.Decode(defaultConfig, TheApiConfigs)
 		return err
 	}
