@@ -3,6 +3,7 @@ package request
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 	"github.com/BurntSushi/toml"
 	"github.com/gaozhengxin/lockinmonitor/backend/types"
@@ -15,13 +16,14 @@ type Res struct {
 }
 
 func Request (cointype string, address string) func (chan Res) () {
-	if cointype == "EVT1" {
+	if strings.HasPrefix(cointype,"EVT") {
 		return func (ch chan Res) {
+			id := strings.TrimPrefix(cointype,"EVT")
 			var txs []types.Transaction
 			_, b, errs := gorequest.New().
 			Post(TheApiConfigs.EVT).
 			Set("Accept","application/json").
-			Send(`{"sym_id":1,"addr":"` + address + `"}`).
+			Send(`{"sym_id":`+id+`,"addr":"` + address + `"}`).
 			EndBytes()
 			if len(errs) > 0 {
 				err := fmt.Errorf("Request errors: %+v",errs)

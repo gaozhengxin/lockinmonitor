@@ -18,7 +18,7 @@ func UnmarshalEvtActions (jsonbytes []byte) ([]EvtAction) {
 	for i, act := range evtActions {
 		if act.Name == "issuefungible" {
 			evtActions[i].Data = &IssuefungibleData{Memo:act.DataI["memo"],Number:EvtAmount(act.DataI["number"]),Address:act.DataI["address"]}
-		} else if act.Name == "transfertf" {
+		} else if act.Name == "transferft" {
 			evtActions[i].Data = &TransfertfData{From:act.DataI["from"],To:act.DataI["To"],Number:EvtAmount(act.DataI["number"])}
 		} else {
 			continue
