@@ -19,7 +19,7 @@ func UnmarshalEvtActions (jsonbytes []byte) ([]EvtAction) {
 		if act.Name == "issuefungible" {
 			evtActions[i].Data = &IssuefungibleData{Memo:act.DataI["memo"],Number:EvtAmount(act.DataI["number"]),Address:act.DataI["address"]}
 		} else if act.Name == "transferft" {
-			evtActions[i].Data = &TransfertfData{From:act.DataI["from"],To:act.DataI["To"],Number:EvtAmount(act.DataI["number"])}
+			evtActions[i].Data = &TransferftData{From:act.DataI["from"],To:act.DataI["to"],Number:EvtAmount(act.DataI["number"])}
 		} else {
 			continue
 		}
@@ -41,12 +41,14 @@ func EvtActionToTransaction (e []EvtAction) ([]Transaction) {
 			log.Printf("get Evt transaction time stamp error: %v\n",err)
 		}
 		if act.Name == "issuefungible" {
+			log.Println("1111111111")
 			txs[i].FromAddress = "the token issuer"
 			txs[i].TxOutputs = append(txs[i].TxOutputs,TxOutput{ToAddress:act.Data.(*IssuefungibleData).Address,Value:act.Data.(*IssuefungibleData).Number.ToString()})
 		}
-		if act.Name == "transfertf" {
-			txs[i].FromAddress = act.Data.(TransfertfData).From
-			txs[i].TxOutputs = append(txs[i].TxOutputs,TxOutput{ToAddress:act.Data.(*TransfertfData).To,Value:act.Data.(*TransfertfData).Number.ToString()})
+		if act.Name == "transferft" {
+			log.Println("2222222222")
+			txs[i].FromAddress = act.Data.(*TransferftData).From
+			txs[i].TxOutputs = append(txs[i].TxOutputs,TxOutput{ToAddress:act.Data.(*TransferftData).To,Value:act.Data.(*TransferftData).Number.ToString()})
 		}
 	}
 	return txs
@@ -68,7 +70,7 @@ type IssuefungibleData struct {
 	Address string
 }
 
-type TransfertfData struct {
+type TransferftData struct {
 	From string
 	To string
 	Number EvtAmount
@@ -83,6 +85,14 @@ func (amt EvtAmount) ToString () string {
 }
 
 func checktoken (act EvtAction, id string) bool {
-	ss := strings.Split(act.Data.(*IssuefungibleData).Number.ToString(),"#")
+	var number string
+	if act.Name == "issuefungible" {
+		number = act.Data.(*IssuefungibleData).Number.ToString()
+	} else if act.Name == "transferft" {
+		number = act.Data.(*TransferftData).Number.ToString()
+	} else {
+		return false
+	}
+	ss := strings.Split(number,"#")
 	return len(ss) == 2 && ss[1] == id
 }

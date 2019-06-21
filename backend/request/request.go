@@ -3,6 +3,7 @@ package request
 import (
 	"fmt"
 	"os"
+	"runtime/debug"
 	"strings"
 	"time"
 	"github.com/BurntSushi/toml"
@@ -18,6 +19,12 @@ type Res struct {
 func Request (cointype string, address string) func (chan Res) () {
 	if strings.HasPrefix(cointype,"EVT") {
 		return func (ch chan Res) {
+			defer func () {
+				if e := recover(); e != nil {
+					err := fmt.Errorf("GetTransactionsByAddress: Runtime error:  %v\n%v", e, string(debug.Stack()))
+					ch <- Res{Err: err}
+				}
+			}()
 			id := strings.TrimPrefix(cointype,"EVT")
 			var txs []types.Transaction
 			_, b, errs := gorequest.New().
