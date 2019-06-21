@@ -41,12 +41,10 @@ func EvtActionToTransaction (e []EvtAction) ([]Transaction) {
 			log.Printf("get Evt transaction time stamp error: %v\n",err)
 		}
 		if act.Name == "issuefungible" {
-			log.Println("1111111111")
 			txs[i].FromAddress = "the token issuer"
 			txs[i].TxOutputs = append(txs[i].TxOutputs,TxOutput{ToAddress:act.Data.(*IssuefungibleData).Address,Value:act.Data.(*IssuefungibleData).Number.ToString()})
 		}
 		if act.Name == "transferft" {
-			log.Println("2222222222")
 			txs[i].FromAddress = act.Data.(*TransferftData).From
 			txs[i].TxOutputs = append(txs[i].TxOutputs,TxOutput{ToAddress:act.Data.(*TransferftData).To,Value:act.Data.(*TransferftData).Number.ToString()})
 		}
