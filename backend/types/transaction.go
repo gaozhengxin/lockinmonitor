@@ -1,6 +1,9 @@
 package types
 
-import "encoding/json"
+import (
+	"encoding/json"
+	//"strings"
+)
 
 type Transaction struct {
 	Txhash string
@@ -15,13 +18,36 @@ type TxOutput struct {
 	Value string
 }
 
+func ParseEVTTransactions (b []byte) []Transaction {
+	return EvtActionToTransaction(UnmarshalEvtActions(b))
+}
+
+func ParseBTCTransactions (b []byte) []Transaction {
+	var btctxs []BtcTx
+	json.Unmarshal(b,&btctxs)
+	if btctxs == nil {
+		return nil
+	}
+	return BtcTxToTransaction(btctxs)
+}
+
+func ParseETHTransactions (b []byte) []Transaction {
+	var ethtxs []ETHTransaction
+	json.Unmarshal(b,&ethtxs)
+	if ethtxs == nil {
+		return nil
+	}
+	return ETHTransactionToTransaction(ethtxs)
+}
+
+/*
 func ParseTransactions (cointype string) func ([]byte) []Transaction {
-	if cointype == "EVT1" {
+	if strings.HasPrefix(cointype, "EVT") {
 		return func (b []byte) []Transaction {
 			return EvtActionToTransaction(UnmarshalEvtActions(b))
 		}
 	}
-	if cointype == "BTC" {
+	if strings.EqualFold(cointype, "BTC") {
 		return func (b []byte) []Transaction {
 			var btctxs []BtcTx
 			json.Unmarshal(b,&btctxs)
@@ -31,7 +57,7 @@ func ParseTransactions (cointype string) func ([]byte) []Transaction {
 			return BtcTxToTransaction(btctxs)
 		}
 	}
-	if cointype == "ETH" {
+	if strings.EqualFold(cointype, "ETH") {
 		return func (b []byte) []Transaction {
 			var ethtxs []ETHTransaction
 			json.Unmarshal(b,&ethtxs)
@@ -43,6 +69,7 @@ func ParseTransactions (cointype string) func ([]byte) []Transaction {
 	}
 	return nil
 }
+*/
 
 func MarshalTransactions (txs []Transaction) []byte {
 	res := "["

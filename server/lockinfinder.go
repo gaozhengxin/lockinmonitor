@@ -48,6 +48,8 @@ func HandleGetTxs(b *backend.Backend, c *gin.Context) {
 		} else if res.Err != nil {
 			c.String(500, res.Err.Error())
 			return
+		} else if res.Txs == nil {
+			c.Data(200, "application/json", []byte{})
 		} else {
 			c.String(500, "unknown error")
 			return

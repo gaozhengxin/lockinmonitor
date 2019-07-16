@@ -27,17 +27,17 @@ func (b *Backend) GetTransactionsByAddress (cointype string, address string) (re
 	go f(ch)
 	res, _ = <-ch
 	if res.Txs != nil {
-		res.Txs = LockinFilt(res.Txs)
+		res.Txs = LockinFilt(res.Txs, address)
 	}
 	return
 }
 
 // 判断是否可以lockin
-func LockinFilt(txs []types.Transaction) (litxs []types.Transaction) {
+func LockinFilt(txs []types.Transaction, address string) (litxs []types.Transaction) {
 	for _, tx := range txs {
 		canlockin := true
 		for _, out := range tx.TxOutputs {
-			if out.ToAddress == tx.FromAddress {
+			if out.ToAddress == tx.FromAddress && out.ToAddress == address {
 				canlockin = false
 				break
 			}

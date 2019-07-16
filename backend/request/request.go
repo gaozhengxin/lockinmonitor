@@ -36,7 +36,8 @@ func Request (cointype string, address string) func (chan Res) () {
 				err := fmt.Errorf("Request errors: %+v",errs)
 				ch <- Res{Txs:txs,Err:err}
 			}
-			txs = types.ParseTransactions(cointype)(b)
+			//txs = types.ParseTransactions(cointype)(b)
+			txs = types.ParseEVTTransactions(b)
 			ch <- Res{Txs:txs}
 			time.Sleep(time.Duration(5) * time.Second)
 			close(ch)
@@ -53,7 +54,8 @@ func Request (cointype string, address string) func (chan Res) () {
 				err := fmt.Errorf("Request errors: %+v",errs)
 				ch <- Res{Txs:txs,Err:err}
 			}
-			txs = types.ParseTransactions(cointype)(b)
+			//txs = types.ParseTransactions(cointype)(b)
+			txs = types.ParseBTCTransactions(b)
 			ch <- Res{Txs:txs}
 			time.Sleep(time.Duration(5) * time.Second)
 			close(ch)
@@ -61,16 +63,18 @@ func Request (cointype string, address string) func (chan Res) () {
 	}
 	if cointype == "ETH" {
 		return func (ch chan Res) {
+			laddr := strings.ToLower(address)
 			var txs []types.Transaction
 			_, b, errs := gorequest.New().
-			Get(TheApiConfigs.ETH + "/"+"txs/"+address).
+			Get(TheApiConfigs.ETH + "/"+"txs/"+laddr).
 			Set("Accept","application/json").
 			EndBytes()
 			if len(errs) > 0 {
 				err := fmt.Errorf("Request errors: %+v",errs)
 				ch <- Res{Txs:txs,Err:err}
 			}
-			txs = types.ParseTransactions(cointype)(b)
+			//txs = types.ParseTransactions(cointype)(b)
+			txs = types.ParseETHTransactions(b)
 			ch <- Res{Txs:txs}
 			time.Sleep(time.Duration(5) * time.Second)
 			close(ch)

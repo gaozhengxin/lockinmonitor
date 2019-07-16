@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 )
 
-var tokenid string = "1"
+var tokenid string
 
 func UnmarshalEvtActions (jsonbytes []byte) ([]EvtAction) {
 	var evtActions []EvtAction
@@ -23,9 +23,9 @@ func UnmarshalEvtActions (jsonbytes []byte) ([]EvtAction) {
 		} else {
 			continue
 		}
-		if checktoken(evtActions[i], tokenid) == false {
-			continue
-		}
+		//if checktoken(evtActions[i], tokenid) == false {
+		//	continue
+		//}
 	}
 	return evtActions
 }
