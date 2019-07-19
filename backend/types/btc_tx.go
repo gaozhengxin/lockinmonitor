@@ -45,12 +45,38 @@ func BtcTxToTransaction(btxs []BtcTx) []Transaction {
 		}
 		txs[i].FromAddress = strings.TrimSuffix(fromStr,"|")
 		for _, vout := range tx.Vout {
+			if froms[vout.Scriptpubkey_address] == 1 {
+				// 去掉找回
+				continue
+			}
 			txs[i].TxOutputs = append(txs[i].TxOutputs,TxOutput{ToAddress:vout.Scriptpubkey_address,Value:strconv.FormatInt(int64(vout.Value),10)})
 		}
 		txs[i].Timestamp = int64(tx.Status.Block_time) * 1000
 		//txs[i].Timestamp = time.Unix(0,int64(tx.Status.Block_time)).Format("2019-05-29T11:11:36+00")
 	}
 	return txs
+}
+
+// 合并同一地址的vout
+func MergeVout (btx BtcTx) BtcTx {
+	var mtx BtcTx
+	mtx = btx
+	var vm = make(map[string]float64)
+	for _, vout := range btx.Vout {
+		k := vout.Scriptpubkey + "|" + vout.Scriptpubkey_address
+		vm[k] = vm[k] + vout.Value
+	}
+	var vouts []VoutData
+	for k, v := range vm {
+		vout := VoutData{
+			Scriptpubkey:strings.Split(k,"|")[0],
+			Scriptpubkey_address:strings.Split(k,"|")[1],
+			Value:v,
+		}
+		vouts = append(vouts, vout)
+	}
+	copy(mtx.Vout, vouts)
+	return mtx
 }
 
 func ConvertAddresses(btxs []BtcTx) []BtcTx {
