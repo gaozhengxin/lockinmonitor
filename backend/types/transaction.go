@@ -40,6 +40,15 @@ func ParseETHTransactions (b []byte) []Transaction {
 	return ETHTransactionToTransaction(ethtxs)
 }
 
+func ParseERC20Transactions (cointype string, b []byte) []Transaction {
+	var erc20txs []ETHTransaction
+	json.Unmarshal(b,&erc20txs)
+	if erc20txs == nil {
+		return nil
+	}
+	return ERC20TransactionToTransaction(cointype, erc20txs)
+}
+
 /*
 func ParseTransactions (cointype string) func ([]byte) []Transaction {
 	if strings.HasPrefix(cointype, "EVT") {

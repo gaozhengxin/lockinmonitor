@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
 	"github.com/gin-gonic/gin"
 	"github.com/gaozhengxin/lockinmonitor/backend"
 	"github.com/gaozhengxin/lockinmonitor/backend/request"
@@ -31,6 +32,7 @@ func main() {
 
 func HandleGetTxs(b *backend.Backend, c *gin.Context) {
 		cointype := c.Param("cointype")
+		cointype = strings.ToUpper(cointype)
 		address := c.Param("address")
 		if cointype == "" {
 			c.String(400, "param cointype not set")

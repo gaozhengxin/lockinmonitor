@@ -80,6 +80,24 @@ func Request (cointype string, address string) func (chan Res) () {
 			close(ch)
 		}
 	}
+	if strings.HasPrefix(cointype, "ERC20") {
+		return func (ch chan Res) {
+			laddr := strings.ToLower(address)
+			var txs []types.Transaction
+			_, b, errs := gorequest.New().
+			Get(TheApiConfigs.ETH + "/"+"txs/"+laddr).
+			Set("Accept","application/json").
+			EndBytes()
+			if len(errs) > 0 {
+				err := fmt.Errorf("Request errors: %+v",errs)
+				ch <- Res{Txs:txs,Err:err}
+			}
+			txs = types.ParseERC20Transactions(cointype, b)
+			ch <- Res{Txs:txs}
+			time.Sleep(time.Duration(5) * time.Second)
+			close(ch)
+		}
+	}
 	return func (ch chan Res) {
 		ch <- Res{Err: fmt.Errorf("cointype %v not supported",cointype)}
 	}
